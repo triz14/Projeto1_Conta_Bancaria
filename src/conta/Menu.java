@@ -1,11 +1,20 @@
 package conta;
 
 import java.util.Scanner;
+import conta.model.Conta;
 import conta.util.Cores;
 
 public class Menu {
 
 	public static void main(String[] args) {
+		
+		//Instanciamento
+		Conta c1 = new Conta(123456, 0001, 1, "Ana", 500f);
+		c1.visualizar();
+		c1.sacar(5000f);
+		c1.visualizar();
+		c1.depositar(200);
+		c1.visualizar();
 
 		Scanner leia = new Scanner(System.in);
 
