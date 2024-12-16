@@ -1,6 +1,10 @@
 package conta;
 
+import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
+
+import conta.controller.ContaController;
 import conta.model.ContaCorrente;
 import conta.model.ContaPoupanca;
 import conta.util.Cores;
@@ -9,27 +13,31 @@ public class Menu {
 
 	public static void main(String[] args) {
 
-		// Instanciamento
-		ContaCorrente cc1 = new ContaCorrente(123456, 0001, 1, "Ana", 500.0f, 1200.0f);
-		cc1.visualizar();
-		cc1.sacar(50.5f);
-		cc1.visualizar();
-		cc1.depositar(200);
-		cc1.visualizar();
+		ContaController contas = new ContaController();
 
-		ContaCorrente cc2 = new ContaCorrente(34635, 0006, 1, "Jane", 600.0f);
-		cc2.visualizar();
-
-		ContaPoupanca cp1 = new ContaPoupanca(673412, 0001, 2, "Maria", 1000.0f, 12);
-		cp1.visualizar();
-		cp1.sacar(300);
-		cp1.visualizar();
-		cp1.depositar(1500);
-		cp1.visualizar();
+		int opcao, numero, agencia, tipo, aniversario;
+		String titular;
+		float saldo = 0, limite;
+		
+		System.out.println("\nCriar contas\n");
+		
+		ContaCorrente cc1 = new ContaCorrente(contas.gerarNumero(), 123, 1, "João da Silva", 1000f, 
+		100.0f);
+		contas.cadastrar(cc1);
+		
+		ContaCorrente cc2 = new ContaCorrente(contas.gerarNumero(), 124, 1, "Maria da Silva", 2000f, 
+		100.0f);
+		contas.cadastrar(cc2);
+		
+		ContaPoupanca cp1 = new ContaPoupanca(contas.gerarNumero(), 125, 2, "Mariana dos Santos", 4000f,
+		12);
+		contas.cadastrar(cp1);
+		
+		ContaPoupanca cp2 = new ContaPoupanca(contas.gerarNumero(), 126, 2, "Mariana dos Santos", 8000f,
+		18);
+		contas.cadastrar(cp2);
 
 		Scanner leia = new Scanner(System.in);
-
-		int opcao;
 
 		while (true) {
 			System.out.println(Cores.TEXT_YELLOW + Cores.ANSI_BLACK_BACKGROUND
@@ -51,12 +59,20 @@ public class Menu {
 			System.out.println("                                                     ");
 			System.out.println("*****************************************************");
 			System.out.println("Entre com a opção desejada:                          ");
-			System.out.println("                                                     " + Cores.TEXT_RESET);
+			System.out.println("                                                     " 
+			+ Cores.TEXT_RESET);
 
-			opcao = leia.nextInt();
+			try {
+				opcao = leia.nextInt();
+			} catch (InputMismatchException e) {
+				System.out.println("Digite valores inteiros!");
+				leia.nextLine();
+				opcao = 0;
+			}
 
 			if (opcao == 9) {
-				System.out.println(Cores.TEXT_WHITE_BOLD + "\nBanco Ecomic Bank - O seu Futuro começa aqui!");
+				System.out.println(Cores.TEXT_WHITE_BOLD + "\nBanco Ecomic Bank - O seu Futuro "
+				+ "começa aqui!");
 				sobre();
 				leia.close();
 				System.exit(0);
@@ -65,38 +81,76 @@ public class Menu {
 			switch (opcao) {
 			case 1:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Criar Conta \n\n");
+
+				System.out.println("Digite o número da agência: ");
+				agencia = leia.nextInt();
+				System.out.println("Digite o nome do titular: ");
+				leia.skip("\\R?");
+				titular = leia.nextLine();
+
+				do {
+					System.out.println("Digite o tipo da conta (1-CC ou 2-CP): ");
+					tipo = leia.nextInt();
+
+					switch (tipo) {
+						case 1 -> {
+							System.out.println("Digite o limite de Crédito (R$): ");
+							limite = leia.nextFloat();
+							contas.cadastrar(new ContaCorrente(contas.gerarNumero(), agencia, tipo, 
+							titular, saldo, limite));
+						}
+						case 2 -> {
+							System.out.println("Digite o dia do Aniversário da Conta: ");
+							aniversario = leia.nextInt();
+							contas.cadastrar(new ContaPoupanca(contas.gerarNumero(), agencia, tipo, 
+							titular, saldo, aniversario));
+						}
+					}
+
+				} while (tipo < 1 && tipo > 2);
+
+				keyPress();
 				break;
 
 			case 2:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Listar todas as Contas \n\n");
+				contas.listarTodas();
+				keyPress();
 				break;
 
 			case 3:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Consultar dados da Conta - por número\n\n");
+				keyPress();
 				break;
 
 			case 4:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Atualizar dados da Conta\n\n");
+				keyPress();
 				break;
 
 			case 5:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Apagar a Conta\n\n");
+				keyPress();
 				break;
 
 			case 6:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Saque \n\n");
+				keyPress();
 				break;
 
 			case 7:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Depósito");
+				keyPress();
 				break;
 
 			case 8:
 				System.out.println(Cores.TEXT_WHITE_BOLD + "Transferência entre contas \n\n");
+				keyPress();
 				break;
 
 			default:
 				System.out.println(Cores.TEXT_RED_BOLD + "Opção inválida");
+				keyPress();
 				break;
 			}
 		}
@@ -109,5 +163,15 @@ public class Menu {
 		System.out.println("Generation Brasil - generation@generation.org");
 		System.out.println("github.com/conteudoGeneration");
 		System.out.println("*********************************************************");
+	}
+
+	public static void keyPress() {
+		try {
+			System.out.println(Cores.TEXT_RESET + "\n\nPressione Enter para Continuar...");
+			System.in.read();
+
+		} catch (IOException e) {
+			System.out.println("Você pressionou uma tecla diferente de enter!");
+		}
 	}
 }
